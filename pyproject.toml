@@ -1,0 +1,27 @@
+# © 2025, Stefan Webb. Some Rights Reserved.
+#
+# Except where otherwise noted, this work is licensed under a
+# Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+# https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
+
+[build-system]
+requires = ["hatchling vedo"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hnsw-illustrated"
+version = "0.0.1"
+authors = [{ name = "Stefan Webb", email = "info@stefanwebb.me" }]
+description = "A small implementation of HNSW for learning purposes"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "CC BY-NC-SA 4.0"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/stefanwebb/hnsw-illustrated"
+Issues = "https://github.com/stefanwebb/hnsw-illustrated/issues"
