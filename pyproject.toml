@@ -5,7 +5,7 @@
 # https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
 
 [build-system]
-requires = ["hatchling vedo"]
+requires = ["hatchling", "vedo"]
 build-backend = "hatchling.build"
 
 [project]
@@ -19,8 +19,14 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-license = "CC BY-NC-SA 4.0"
+license = "CC-BY-NC-SA-4.0"
 license-files = ["LICEN[CS]E*"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/src"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hnsw_illustrated"]
 
 [project.urls]
 Homepage = "https://github.com/stefanwebb/hnsw-illustrated"

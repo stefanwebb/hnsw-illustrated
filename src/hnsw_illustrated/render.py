@@ -7,7 +7,7 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
 
 """
 
-from src.hnsw_illustrated.graph import Graph
+from hnsw_illustrated.graph import Graph
 from vedo import *
 
 

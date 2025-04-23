@@ -7,13 +7,9 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
 
 """
 
-import math
-from typing import Tuple
-
-Point = Tuple[float, float]
+import numpy as np
 
 
-def distance(point_a: Point, point_b: Point):
-    ax, ay = point_a
-    bx, by = point_b
-    return math.sqrt((ax - bx) ** 2 + (ay - by) ** 2)
+def l2_distance(vector_one: np.array, vector_two: np.array):
+    # TODO: Set axis?
+    return np.linalg.norm(vector_two - vector_one, ord=2)

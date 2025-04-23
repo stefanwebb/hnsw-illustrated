@@ -9,5 +9,9 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"workbench.colorTheme": "Default Light+",
+		"workbench.preferredDarkColorTheme": "Default High Contrast",
+		"workbench.iconTheme": "eq-material-theme-icons-darker"
+	}
 }
