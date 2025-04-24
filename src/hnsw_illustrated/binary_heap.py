@@ -53,6 +53,8 @@ class BinaryHeap:
         while len(self):
             ans.append(self.pop())
 
+        return ans
+
     def pop(self) -> Any:
         """
         Remove and return top element, maintaining heap property in O(log(n))
@@ -67,9 +69,9 @@ class BinaryHeap:
         Insert element and maintain heap property in O(log(n))
         """
         if self.is_min_heap():
-            return heappush(self._data)
+            return heappush(self._data, x)
         else:
-            return heappush_max(self._data)
+            return heappush_max(self._data, x)
 
     def top(self) -> Any:
         """

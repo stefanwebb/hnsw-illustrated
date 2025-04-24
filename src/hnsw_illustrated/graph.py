@@ -7,6 +7,7 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
 
 """
 
+import random
 from typing import Any, Dict, List, Optional, Iterator, Set
 
 from hnsw_illustrated.node import Node
@@ -15,27 +16,20 @@ from hnsw_illustrated.node import Node
 class Graph:
     def __init__(
         self,
-        nodes: Optional[Set[Node]] = None,
+        nodes: Optional[List[Node]] = None,
         config: Optional[List[Dict[str, Any]]] = None,
     ) -> None:
         self._config = config
         if nodes is not None:
             self._nodes = nodes
         else:
-            self._nodes = set()
+            self._nodes = []
 
     # def __getitem__(self, idx: int) -> Any:
     #     return self._nodes[idx]
 
     def __iter__(self) -> Iterator[Node]:
         return iter(self._nodes)
-
-    def top(self):
-        """
-        Get an arbitrary node but don't pop it
-        """
-        for node in self._nodes:
-            return node
 
     # def __repr__(self) -> str:
     #     self.render()
@@ -45,11 +39,14 @@ class Graph:
     #     self.render()
     #     return "Graph()"
 
-    def add(self, node: Node) -> Node:
-        if node in self._nodes:
-            raise ValueError("cannot insert the same node twice")
+    def random(self) -> Optional[Node]:
+        if not len(self._nodes):
+            return None
 
-        self._nodes.add(node)
+        return self._nodes[random.randrange(0, len(self._nodes))]
+
+    def add(self, node: Node) -> Node:
+        self._nodes.append(node)
 
         # TODO: Or return Graph?
         return node

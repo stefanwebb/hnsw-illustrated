@@ -7,12 +7,16 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
 
 """
 
+from copy import copy
 from typing import Any, Dict, List, Optional, Tuple
 
 from hnsw_illustrated.binary_heap import MaxHeap, MinHeap
 from hnsw_illustrated.graph import Graph, Node
 from hnsw_illustrated.metrics import l2_distance
 import numpy as np
+
+
+# done_this = False
 
 
 class NavigableSmallWorld(Graph):
@@ -27,9 +31,14 @@ class NavigableSmallWorld(Graph):
     # TODO: build method in case want to compare with HNSW
     # def build(self, ...)
 
-    def _insert(self, vector: np.array, entry_node: Optional[Node] = None) -> None:
+    def _insert(
+        self,
+        vector: np.array,
+        entry_node: Optional[Node] = None,
+        shrink_neighborhoods: bool = False,
+    ) -> Node:
         if entry_node is None:
-            entry_node = self.top()
+            entry_node = self.random()
 
         # Calculate neighbors of new node from greedy search
         neighbors = set(
@@ -40,23 +49,48 @@ class NavigableSmallWorld(Graph):
                 )
             ]
         )
-        node = Node({"vector": vector})
+
+        # NOTE: copy is necessary to avoid subtle bug in loop below
+        node = Node({"vector": vector}, copy(neighbors))
 
         # Connect neighbors of new node to node
         for neighbor in neighbors:
             neighbor.connect(node)
 
+            # Shrink neighbor's neighborhood if necessary
+            if (
+                shrink_neighborhoods
+                and len(neighbor._neighbors) > self._config["max_neighbors"]
+            ):
+                # Find new neighbors
+                dists = sorted(
+                    [
+                        (l2_distance(neighbor._data["vector"], nn._data["vector"]), nn)
+                        for nn in neighbor._neighbors
+                    ]
+                )
+                neighbor_neighbors = [
+                    n for _, n in dists[: self._config["max_neighbors"]]
+                ]
+
+                # Disconnect the old and reconnect the new
+                old_neighbors = copy(neighbor._neighbors)
+
+                neighbor.disconnect_all()
+                neighbor.connect_all(neighbor_neighbors)
+
         self.add(node)
+        return node
 
     def search(
         self, query: np.array, entry_node: Optional[Node] = None, width: int = 1
     ) -> List[Tuple[float, Node]]:
         if entry_node is None:
-            entry_node = self.top()
+            entry_node = self.random()
             if entry_node is None:
                 return []
 
-        visited = set()
+        visited = set([entry_node])
         distance = l2_distance(query, entry_node._data["vector"])
         candidates = MinHeap([(distance, entry_node)])
         top_k = MaxHeap([(distance, entry_node)])
@@ -73,7 +107,7 @@ class NavigableSmallWorld(Graph):
             # loop through all nearest neighbors to the candidate vector
             # cv[1] is list of neighbor indices to min element
             # graph[cv[1]][1] is neighbors of cv[1]
-            for neighbor in candidate[1].neighbors:
+            for neighbor in candidate[1]._neighbors:
                 # Calculate distance of this neighbor to query
                 dist = l2_distance(neighbor._data["vector"], query)
 
