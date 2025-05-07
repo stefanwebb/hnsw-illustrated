@@ -7,41 +7,54 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
 
 """
 
+from typing import Any, List
+
 from hnsw_illustrated.graph import Graph
-from hnsw_illustrated.hierarchical_navigable_small_world import (
-    HierarchicalNavigableSmallWorld,
-)
 
 # from vedo import *
-from vedo import np, Points, show
-
-# Generate 4 random sets of N points in 3D space
-N = 2000
-f = 0.6
-# noise1 = np.random.rand(N, 3) * f + np.array([1, 1, 0])
-# noise2 = np.random.rand(N, 3) * f + np.array([1, 0, 1.2])
-# noise3 = np.random.rand(N, 3) * f + np.array([0, 1, 1])
-# noise4 = np.random.randn(N, 3) * f / 8 + np.array([1, 1, 1])
-
-# Create a Points object from the noisy point sets
-noise4 = Points(noise4).remove_outliers(radius=0.05).coordinates
-
-pts = noise1.tolist() + noise2.tolist()
-pts = Points(pts, c=(1.0, 1.0, 1.0))
-
-pts2 = noise3.tolist() + noise4.tolist()
-pts2 = Points(pts2, c=(0, 1.0, 1.0))
-
-# Cluster the points to find back their original identity
-# clpts = pts.compute_clustering(radius=0.1).print()
-# Set the color of the points based on their cluster ID using the 'jet' colormap
-# clpts.cmap("jet", "ClusterId")
-
-show(pts, pts2, __doc__, axes=1, viewup="z", bg="blackboard").close()
+from vedo import Axes, np, Points, show, Lines
 
 
-def render_hnsw(graph: HierarchicalNavigableSmallWorld) -> None:
-    layer_ptr = [Points(layer.vertices, c=(0.5, 0.0, 0.5)) for layer in graph._layers]
+def render_nsw(graph: "NavigableSmallWorld", z=0, c=(0.0, 1.0, 0.0)) -> List[Any]:
+    # Render vertices
+    vertices = graph.vertices()
+    points = Points(
+        np.concatenate([vertices, z * np.ones((len(vertices), 1))], axis=-1), r=8, c=c
+    )
+
+    # Render bidirectional edges
+    edges = graph.bidirectional_edges()
+    if len(edges) > 0:
+        starts = np.concatenate([edges[:, 0, :], z * np.ones((len(edges), 1))], axis=-1)
+        ends = np.concatenate([edges[:, 1, :], z * np.ones((len(edges), 1))], axis=-1)
+        bidi_lines = Lines(starts, ends)
+    else:
+        bidi_lines = None
+
+    # TODO: Render unidirectional edges
+    edges = graph.unidirectional_edges()
+    if len(edges) > 0:
+        starts = np.concatenate([edges[:, 0, :], z * np.ones((len(edges), 1))], axis=-1)
+        ends = np.concatenate([edges[:, 1, :], z * np.ones((len(edges), 1))], axis=-1)
+        uni_lines = Lines(starts, ends, dotted=True, c=(1.0, 0.0, 0.0))
+    else:
+        uni_lines = None
+
+    return [points, bidi_lines, uni_lines]
+
+
+def render_hnsw(graph: "HierarchicalNavigableSmallWorld") -> List[Any]:
+    stuff = []
+
+    # Render vertices and edges for layers
+    for idx, layer in enumerate(graph._layers):
+        stuff.append(render_nsw(layer, z=len(graph._layers) - idx))
+
+    # Render edges *between* layers
+    # more_stuff = []
+    # for idx, layer in enumerate(graph._layers):
+
+    return stuff  # + more_stuff
 
 
 # TODO: Options
@@ -51,3 +64,13 @@ def render_hnsw(graph: HierarchicalNavigableSmallWorld) -> None:
 # for node in graph:
 #     pass
 # show(clpts, __doc__, axes=1, viewup="z", bg="blackboard").close()
+
+
+def render(objs: List[Any]) -> None:
+    axes = Axes(
+        xrange=(-3.3, 3.3),
+        yrange=(-3.3, 3.3),
+        zrange=(1, 5),
+    )
+
+    show(*objs, axes, viewup="z", bg="white").close()

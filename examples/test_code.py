@@ -10,19 +10,21 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+
 from hnsw_illustrated.hierarchical_navigable_small_world import (
     HierarchicalNavigableSmallWorld,
 )
 from hnsw_illustrated.navigable_small_world import NavigableSmallWorld
-
+from hnsw_illustrated.render import render_nsw
+from vedo import show
 
 if __name__ == "__main__":
     # Dummy data
     rng = np.random.default_rng(12345)
     random.seed(12345)
-    dataset = rng.normal(size=(12, 2))
+    dataset = rng.normal(size=(100, 2))
 
-    # Implement NavigableSmallWorld.search
+    # Build search structure
     config = {"insert_width": 2, "max_neighbors": 5}
     hnsw = HierarchicalNavigableSmallWorld(config=config)
     hnsw.build(dataset, 0.5)
@@ -31,6 +33,33 @@ if __name__ == "__main__":
     # nsw = NavigableSmallWorld(config=config)
     # for x in dataset:
     #     nsw._insert(x)
+
+    # stuff = render_nsw(nsw, z=1)
+    # stuff2 = render_nsw(nsw, z=0, c=(0, 0, 1))
+    # show(*stuff, *stuff2, axes=1, viewup="z", bg="white").close()
+
+    # DEBUG: Test edge, vertex methods on Graph
+    # print("individual vertices")
+    # for vertex in nsw.vertex_iter():
+    #     print(vertex)
+
+    # print("\nvertex array\n", nsw.vertices())
+
+    # print("edges")
+    # for edge in nsw.edge_iter():
+    #     print(edge)
+
+    # print(len(nsw.edges()))
+
+    # print("\n\n")
+    # print("uni-directional edges")
+    # print(nsw.unidirectional_edges())
+
+    # print("\n\n")
+    # print("bi-directional edges")
+    # print(nsw.bidirectional_edges())
+
+    # print(len(nsw.bidirectional_edges()))
 
     """
     # print("total edges", nsw.count_edges)

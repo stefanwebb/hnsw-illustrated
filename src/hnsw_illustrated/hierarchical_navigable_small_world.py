@@ -11,7 +11,9 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from hnsw_illustrated.graph import Node
 from hnsw_illustrated.navigable_small_world import NavigableSmallWorld
+from hnsw_illustrated.render import render_hnsw, render
 import numpy as np
+from vedo import show
 
 rng = np.random.default_rng(12345)
 
@@ -77,3 +79,15 @@ class HierarchicalNavigableSmallWorld:
             if previous_node:
                 previous_node.down = node
             previous_node = node
+
+        # DEBUG
+        stuff = render_hnsw(self)
+        render(stuff)
+
+    def down_edges_iter(self):
+        """
+        Iterate over the downward edges
+        """
+
+        for layer in self._layers:
+            

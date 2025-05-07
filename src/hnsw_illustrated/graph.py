@@ -40,25 +40,24 @@ class Graph:
     #     self.render()
     #     return "Graph()"
 
-
     def vertex_iter(self):
         for node in self:
-            if node.pos:
-                yield node.pos
+            if node.vector is not None:
+                yield node.vector.tolist()
 
     def vertices(self) -> np.array:
         return np.array(list(self.vertex_iter()))
 
     def edge_iter(self):
         for node in self:
-            if not node.pos:
+            if node.vector is None:
                 continue
 
             for neighbor in node.neighbors:
-                if not neighbor.pos:
+                if neighbor.vector is None:
                     continue
 
-                yield (node.pos, neighbor.pos)
+                yield (node.vector.tolist(), neighbor.vector.tolist())
 
     def edges(self) -> np.array:
         return np.array(list(self.edge_iter()))
@@ -67,17 +66,18 @@ class Graph:
         cts = {}
 
         for pos_from, pos_to in self.edge_iter():
-            if pos_to < pos_from:
+            if tuple(pos_to) < tuple(pos_from):
                 pos_to, pos_from = pos_from, pos_to
-            cts.my_dict.setdefault((pos_from, pos_to), 0) += 1
+            edge = (tuple(pos_from), tuple(pos_to))
+            cts[edge] = cts.setdefault(edge, 0) + 1
 
         return cts
 
     def bidirectional_edges(self) -> np.array:
-        return np.array([val for key, val in self.count_edges() if val == 2])
+        return np.array([key for key, val in self.count_edges().items() if val == 2])
 
     def unidirectional_edges(self) -> np.array:
-        return np.array([val for key, val in self.count_edges() if val == 1])
+        return np.array([key for key, val in self.count_edges().items() if val == 1])
 
     def random(self) -> Optional[Node]:
         if not len(self._nodes):
