@@ -13,8 +13,8 @@ from typing import Any, Dict, Iterable, Optional, Set
 
 class Node:
     def __init__(self, data: Dict[str, Any] = None, neighbors: Set["Node"] = set()):
-        self._neighbors = neighbors
-        self._data = data
+        super().__setattr__("neighbors", neighbors)
+        super().__setattr__("data", data)
 
     def __repr__(self):
         return self._str()
@@ -23,12 +23,29 @@ class Node:
         return self._str()
 
     def _str(self):
-        neighbors = ", ".join([f'{n._data["vector"]}' for n in self._neighbors])
-        return f"Node(\n\tNeighbors: {neighbors}\n\tData: {self._data}\n)\n"
+        neighbors = ", ".join([f"{n.vector}" for n in self.neighbors])
+        return f"Node(\n\tNeighbors: {neighbors}\n\tData: {self.data}\n)\n"
+
+    def __getattr__(self, key):
+        if key in ["neighbors", "data"]:
+            return super().getattr(key)
+
+        try:
+            return self.data[key]
+        except KeyError:
+            # More graceful failure behavior
+            return None
+            # raise AttributeError(f"'Node' object has no attribute '{key}'")
+
+    def __setattr__(self, key, value):
+        if key == "neighbors":
+            raise AttributeError(f"Cannot set neighbors attribute of 'Node'")
+
+        self.data[key] = value
 
     def connect(self, node: "Node") -> "Node":
-        self._neighbors.add(node)
-        node._neighbors.add(self)
+        self.neighbors.add(node)
+        node.neighbors.add(self)
         return self
 
     def connect_all(self, nodes: Iterable["Node"]) -> "Node":
@@ -37,12 +54,12 @@ class Node:
         return self
 
     def disconnect(self, node: "Node") -> "Node":
-        self._neighbors.discard(node)
-        node._neighbors.discard(self)
+        self.neighbors.discard(node)
+        node.neighbors.discard(self)
 
     def disconnect_all(self, nodes: Optional[Iterable["Node"]] = None) -> "Node":
         if nodes is None:
-            nodes = copy(self._neighbors)
+            nodes = copy(self.neighbors)
 
         for node in nodes:
             self.disconnect(node)

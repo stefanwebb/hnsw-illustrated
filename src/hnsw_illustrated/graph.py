@@ -8,9 +8,10 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
 """
 
 import random
-from typing import Any, Dict, List, Optional, Iterator, Set
+from typing import Any, Dict, List, Optional, Iterator, Set, Tuple
 
 from hnsw_illustrated.node import Node
+import numpy as np
 
 
 class Graph:
@@ -38,6 +39,45 @@ class Graph:
     # def __str__(self) -> str:
     #     self.render()
     #     return "Graph()"
+
+
+    def vertex_iter(self):
+        for node in self:
+            if node.pos:
+                yield node.pos
+
+    def vertices(self) -> np.array:
+        return np.array(list(self.vertex_iter()))
+
+    def edge_iter(self):
+        for node in self:
+            if not node.pos:
+                continue
+
+            for neighbor in node.neighbors:
+                if not neighbor.pos:
+                    continue
+
+                yield (node.pos, neighbor.pos)
+
+    def edges(self) -> np.array:
+        return np.array(list(self.edge_iter()))
+
+    def count_edges(self) -> Dict[Tuple[float, float], int]:
+        cts = {}
+
+        for pos_from, pos_to in self.edge_iter():
+            if pos_to < pos_from:
+                pos_to, pos_from = pos_from, pos_to
+            cts.my_dict.setdefault((pos_from, pos_to), 0) += 1
+
+        return cts
+
+    def bidirectional_edges(self) -> np.array:
+        return np.array([val for key, val in self.count_edges() if val == 2])
+
+    def unidirectional_edges(self) -> np.array:
+        return np.array([val for key, val in self.count_edges() if val == 1])
 
     def random(self) -> Optional[Node]:
         if not len(self._nodes):

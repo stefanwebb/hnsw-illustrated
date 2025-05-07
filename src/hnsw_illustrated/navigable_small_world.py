@@ -50,23 +50,22 @@ class NavigableSmallWorld(Graph):
             ]
         )
 
-        # NOTE: copy is necessary to avoid subtle bug in loop below
-        node = Node({"vector": vector}, copy(neighbors))
+        node = Node({"vector": vector}, neighbors)
 
         # Connect neighbors of new node to node
         for neighbor in neighbors:
             neighbor.connect(node)
 
             # Shrink neighbor's neighborhood if necessary
-            if (
+            """if (
                 shrink_neighborhoods
-                and len(neighbor._neighbors) > self._config["max_neighbors"]
+                and len(neighbor.neighbors) > self._config["max_neighbors"]
             ):
                 # Find new neighbors
                 dists = sorted(
                     [
-                        (l2_distance(neighbor._data["vector"], nn._data["vector"]), nn)
-                        for nn in neighbor._neighbors
+                        (l2_distance(neighbor.vector, nn.vector), nn)
+                        for nn in neighbor.neighbors
                     ]
                 )
                 neighbor_neighbors = [
@@ -74,10 +73,10 @@ class NavigableSmallWorld(Graph):
                 ]
 
                 # Disconnect the old and reconnect the new
-                old_neighbors = copy(neighbor._neighbors)
+                old_neighbors = copy(neighbor.neighbors)
 
                 neighbor.disconnect_all()
-                neighbor.connect_all(neighbor_neighbors)
+                neighbor.connect_all(neighbor_neighbors)"""
 
         self.add(node)
         return node
@@ -91,7 +90,7 @@ class NavigableSmallWorld(Graph):
                 return []
 
         visited = set([entry_node])
-        distance = l2_distance(query, entry_node._data["vector"])
+        distance = l2_distance(query, entry_node.vector)
         candidates = MinHeap([(distance, entry_node)])
         top_k = MaxHeap([(distance, entry_node)])
 
@@ -107,9 +106,9 @@ class NavigableSmallWorld(Graph):
             # loop through all nearest neighbors to the candidate vector
             # cv[1] is list of neighbor indices to min element
             # graph[cv[1]][1] is neighbors of cv[1]
-            for neighbor in candidate[1]._neighbors:
+            for neighbor in candidate[1].neighbors:
                 # Calculate distance of this neighbor to query
-                dist = l2_distance(neighbor._data["vector"], query)
+                dist = l2_distance(neighbor.vector, query)
 
                 # If we haven't visited this node before...
                 if neighbor not in visited:

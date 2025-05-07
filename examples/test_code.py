@@ -10,6 +10,9 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+from hnsw_illustrated.hierarchical_navigable_small_world import (
+    HierarchicalNavigableSmallWorld,
+)
 from hnsw_illustrated.navigable_small_world import NavigableSmallWorld
 
 
@@ -21,10 +24,15 @@ if __name__ == "__main__":
 
     # Implement NavigableSmallWorld.search
     config = {"insert_width": 2, "max_neighbors": 5}
-    nsw = NavigableSmallWorld(config=config)
-    for x in dataset:
-        nsw._insert(x)
+    hnsw = HierarchicalNavigableSmallWorld(config=config)
+    hnsw.build(dataset, 0.5)
 
+    # config = {"insert_width": 2, "max_neighbors": 5}
+    # nsw = NavigableSmallWorld(config=config)
+    # for x in dataset:
+    #     nsw._insert(x)
+
+    """
     # print("total edges", nsw.count_edges)
     for node in nsw._nodes:
         print("node", hex(id(node)), "neighbors", len(node._neighbors))
@@ -53,6 +61,7 @@ if __name__ == "__main__":
             )
 
     plt.show()
+    """
 
     """
         * Test HierarchicalNavigableSmallWorld.build
