@@ -89,5 +89,33 @@ class HierarchicalNavigableSmallWorld:
         Iterate over the downward edges
         """
 
-        for layer in self._layers:
-            
+        es = []
+        for idx, layer in enumerate(self._layers):
+            for node in layer:
+                if (
+                    node.down is not None
+                    and node.vector is not None
+                    and node.down.vector is not None
+                ):
+                    es.append(
+                        [
+                            np.concatenate(
+                                [
+                                    node.vector,
+                                    (len(self._layers) - idx) * np.ones((1,)),
+                                ],
+                                axis=-1,
+                            ),
+                            np.concatenate(
+                                [
+                                    node.down.vector,
+                                    (len(self._layers) - idx - 1) * np.ones((1,)),
+                                ],
+                                axis=-1,
+                            ),
+                        ]
+                    )
+        return es
+
+    def down_edges(self) -> np.array:
+        return np.array(list(self.down_edges_iter()))

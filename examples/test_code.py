@@ -10,13 +10,14 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import time
 
 from hnsw_illustrated.hierarchical_navigable_small_world import (
     HierarchicalNavigableSmallWorld,
 )
 from hnsw_illustrated.navigable_small_world import NavigableSmallWorld
-from hnsw_illustrated.render import render_nsw
-from vedo import show
+from hnsw_illustrated.render import render, render_nsw
+from vedo import show, Axes, Plotter, Video
 
 if __name__ == "__main__":
     # Dummy data
@@ -24,15 +25,51 @@ if __name__ == "__main__":
     random.seed(12345)
     dataset = rng.normal(size=(100, 2))
 
-    # Build search structure
     config = {"insert_width": 2, "max_neighbors": 5}
-    hnsw = HierarchicalNavigableSmallWorld(config=config)
-    hnsw.build(dataset, 0.5)
+    nsw = NavigableSmallWorld(config=config)
 
+    plt = Plotter()
+    axes = Axes(
+        xrange=(-3.3, 3.3),
+        yrange=(-3.3, 3.3),
+        zrange=(1, 5),
+    )
+
+    video = Video("build-nsw.mp4", backend="ffmpeg")
+    for step_stuff in nsw.build_yield(dataset):
+        # render(step_stuff)
+
+        plt.show(
+            *step_stuff,
+            axes,
+            viewup="z",
+            bg="white",
+            camera={"pos": (0, 0, 15)},
+            interactive=False,
+        )
+        video.add_frame()
+
+        # show(step_stuff[0], viewup="z")
+        # plt.show(step_stuff, viewup="z")
+        # plt.render()
+
+        time.sleep(0.1)
+        plt.clear()
+        # break
+
+    # video.action()
+    video.close()
+    plt.close()
+
+    # plt.interactive().close()
+
+    # stuff = render_nsw(nsw, z=0)
+    # show(*stuff, axes=1, viewup="z", camera={"pos": (0, 0, 15)}, bg="white").close()
+
+    # Build search structure
     # config = {"insert_width": 2, "max_neighbors": 5}
-    # nsw = NavigableSmallWorld(config=config)
-    # for x in dataset:
-    #     nsw._insert(x)
+    # hnsw = HierarchicalNavigableSmallWorld(config=config)
+    # hnsw.build(dataset, 0.5)
 
     # stuff = render_nsw(nsw, z=1)
     # stuff2 = render_nsw(nsw, z=0, c=(0, 0, 1))

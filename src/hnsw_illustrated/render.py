@@ -12,7 +12,7 @@ from typing import Any, List
 from hnsw_illustrated.graph import Graph
 
 # from vedo import *
-from vedo import Axes, np, Points, show, Lines
+from vedo import Axes, np, Points, show, Lines, Arrows
 
 
 def render_nsw(graph: "NavigableSmallWorld", z=0, c=(0.0, 1.0, 0.0)) -> List[Any]:
@@ -51,6 +51,11 @@ def render_hnsw(graph: "HierarchicalNavigableSmallWorld") -> List[Any]:
         stuff.append(render_nsw(layer, z=len(graph._layers) - idx))
 
     # Render edges *between* layers
+    down_edges = graph.down_edges()
+    froms = down_edges[:, 0, :].tolist()
+    tos = down_edges[:, 1, :].tolist()
+    stuff.append(Lines(froms, tos, c=(0.1, 0.1, 0.1)))
+
     # more_stuff = []
     # for idx, layer in enumerate(graph._layers):
 

@@ -8,11 +8,12 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
 """
 
 from copy import copy
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from hnsw_illustrated.binary_heap import MaxHeap, MinHeap
 from hnsw_illustrated.graph import Graph, Node
 from hnsw_illustrated.metrics import l2_distance
+from hnsw_illustrated.render import render_nsw
 import numpy as np
 
 
@@ -28,8 +29,14 @@ class NavigableSmallWorld(Graph):
         # TODO: Pass in distance metric
         super().__init__(nodes=None, config=config)
 
-    # TODO: build method in case want to compare with HNSW
-    # def build(self, ...)
+    def build(self, vectors: Iterable[np.array]) -> None:
+        for _ in self.build_yield(vectors):
+            pass
+
+    def build_yield(self, vectors: Iterable[np.array]) -> Any:
+        for x in vectors:
+            self._insert(x)
+            yield render_nsw(self)
 
     def _insert(
         self,
